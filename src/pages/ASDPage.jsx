@@ -280,10 +280,12 @@ const createHistoryEntry = (type, action, data) => {
 };
 
 // ==================== ROUTINE VISUALIZER ====================
-function RoutineVisualizer({ routine = [], isAdmin = false }) {
+function RoutineVisualizer({ routine = [], isAdmin = false, onRoutineChange }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [countdowns, setCountdowns] = useState({});
   const [alerts, setAlerts] = useState([]);
+  const [newTaskName, setNewTaskName] = useState("");
+  const [newTaskDuration, setNewTaskDuration] = useState(30);
 
   const defaultRoutine = [
     { id: 1, task: "Morning Routine", duration: 30, status: "now" },
@@ -292,6 +294,37 @@ function RoutineVisualizer({ routine = [], isAdmin = false }) {
   ];
 
   const tasks = routine.length > 0 ? routine : defaultRoutine;
+
+  const applyRoutineUpdate = (updater) => {
+    if (!onRoutineChange) return;
+    const nextRoutine = typeof updater === "function" ? updater(tasks) : updater;
+    onRoutineChange(nextRoutine);
+  };
+
+  const handleTaskFieldChange = (taskId, key, value) => {
+    applyRoutineUpdate((previous) =>
+      previous.map((task) => (task.id === taskId ? { ...task, [key]: value } : task))
+    );
+  };
+
+  const handleDeleteTask = (taskId) => {
+    applyRoutineUpdate((previous) => previous.filter((task) => task.id !== taskId));
+  };
+
+  const handleAddTask = () => {
+    if (!newTaskName.trim()) return;
+    applyRoutineUpdate((previous) => [
+      ...previous,
+      {
+        id: Date.now(),
+        task: newTaskName.trim(),
+        duration: Math.max(1, Number(newTaskDuration) || 1),
+        status: "later",
+      },
+    ]);
+    setNewTaskName("");
+    setNewTaskDuration(30);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -322,6 +355,16 @@ function RoutineVisualizer({ routine = [], isAdmin = false }) {
       }));
     }
   }, [currentIndex, tasks]);
+
+  useEffect(() => {
+    if (tasks.length === 0) {
+      setCurrentIndex(0);
+      return;
+    }
+    if (currentIndex >= tasks.length) {
+      setCurrentIndex(tasks.length - 1);
+    }
+  }, [tasks.length, currentIndex]);
 
   const formatTime = (seconds) => {
     const mins = Math.floor(seconds / 60);
@@ -462,6 +505,61 @@ function RoutineVisualizer({ routine = [], isAdmin = false }) {
         ) : (
           <AdminOnlyNotice label="Schedule adjustment tools are available in admin mode." />
         )}
+
+        {isAdmin && onRoutineChange ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Routine Management</CardTitle>
+              <CardDescription>Admin can edit schedule and add new tasks.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {tasks.map((task) => (
+                <div key={task.id} className="grid grid-cols-12 gap-2 items-center">
+                  <Input
+                    className="col-span-7"
+                    value={task.task}
+                    onChange={(e) => handleTaskFieldChange(task.id, "task", e.target.value)}
+                    placeholder="Task name"
+                  />
+                  <Input
+                    className="col-span-3"
+                    type="number"
+                    min="1"
+                    value={task.duration}
+                    onChange={(e) => handleTaskFieldChange(task.id, "duration", Math.max(1, Number(e.target.value) || 1))}
+                  />
+                  <Button
+                    className="col-span-2"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDeleteTask(task.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+
+              <div className="grid grid-cols-12 gap-2 items-center pt-2 border-t">
+                <Input
+                  className="col-span-7"
+                  value={newTaskName}
+                  onChange={(e) => setNewTaskName(e.target.value)}
+                  placeholder="New task"
+                />
+                <Input
+                  className="col-span-3"
+                  type="number"
+                  min="1"
+                  value={newTaskDuration}
+                  onChange={(e) => setNewTaskDuration(Math.max(1, Number(e.target.value) || 1))}
+                />
+                <Button className="col-span-2" onClick={handleAddTask}>
+                  Add
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
       </div>
     </div>
   );
@@ -2321,7 +2419,7 @@ export default function ASDPage() {
           </TabsList>
 
           <TabsContent value="routine" className="space-y-4 mt-6">
-            <RoutineVisualizer routine={currentRoutine} isAdmin={canManageSchedule} />
+            <RoutineVisualizer routine={currentRoutine} isAdmin={canManageSchedule} onRoutineChange={setCurrentRoutine} />
           </TabsContent>
 
           <TabsContent value="sensory" className="space-y-4 mt-6">

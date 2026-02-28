@@ -30,12 +30,19 @@ import AOMILibrary from "./pages/dyspraxia/AOMILibrary";
 import HapticPacer from "./pages/dyspraxia/HapticPacer";
 import ARInstructionCards from "./pages/dyspraxia/ARInstructionCards";
 import SafeRoutePlanner from "./pages/dyspraxia/SafeRoutePlanner";
-import { RoleProvider } from "@/context/RoleContext";
+import { RoleProvider, useRole } from "@/context/RoleContext";
+import AuthGate from "@/components/AuthGate";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <RoleProvider>
+const AppShell = () => {
+  const { isAuthenticated } = useRole();
+
+  if (!isAuthenticated) {
+    return <AuthGate />;
+  }
+
+  return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
@@ -74,6 +81,12 @@ const App = () => (
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
+  );
+};
+
+const App = () => (
+  <RoleProvider>
+    <AppShell />
   </RoleProvider>
 );
 

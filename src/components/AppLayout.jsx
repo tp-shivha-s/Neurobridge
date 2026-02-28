@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Brain, Zap, BookOpen, Calculator, Shield, Hand, Ear, Sparkles, Home, ArrowLeftRight, User, } from "lucide-react";
+import { Brain, Zap, BookOpen, Calculator, Shield, Hand, Ear, Sparkles, Home, LogOut, User, } from "lucide-react";
 import { useRole } from "@/context/RoleContext";
 const navItems = [
     { title: "Home", path: "/", icon: Home },
@@ -14,7 +14,7 @@ const navItems = [
 ];
 export default function AppLayout({ children }) {
     const location = useLocation();
-  const { role, setRole, isAdmin } = useRole();
+  const { isAdmin, currentEmail, signOut } = useRole();
     return (<div className="flex min-h-screen w-full">
       {/* Sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card p-4 gap-2 sticky top-0 h-screen overflow-y-auto">
@@ -33,22 +33,11 @@ export default function AppLayout({ children }) {
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">ABHA ID</p>
             <p className="text-sm font-semibold truncate">NB-2024-XXXX</p>
+            <p className="text-xs mt-1 text-muted-foreground truncate">{currentEmail}</p>
             <p className="text-xs mt-1 text-muted-foreground">
               Role: <span className="font-semibold text-foreground">{isAdmin ? "Admin" : "User"}</span>
             </p>
           </div>
-        </div>
-
-        <div className="neuro-card p-3 mb-4">
-          <label className="text-xs text-muted-foreground block mb-2">Access Mode</label>
-          <select
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-            className="w-full px-2 py-2 rounded-lg border border-border bg-background text-sm"
-          >
-            <option value="user">User View</option>
-            <option value="admin">Admin View</option>
-          </select>
         </div>
 
         <nav className="flex flex-col gap-1 flex-1">
@@ -65,10 +54,10 @@ export default function AppLayout({ children }) {
         })}
         </nav>
 
-        <Link to="/" className="neuro-btn-outline text-sm gap-2 mt-2">
-          <ArrowLeftRight className="w-4 h-4"/>
-          Switch Mode
-        </Link>
+        <button type="button" onClick={signOut} className="neuro-btn-outline text-sm gap-2 mt-2">
+          <LogOut className="w-4 h-4"/>
+          Sign Out
+        </button>
       </aside>
 
       {/* Mobile top bar */}
@@ -81,10 +70,10 @@ export default function AppLayout({ children }) {
               {isAdmin ? "Admin" : "User"}
             </span>
           </div>
-          <Link to="/" className="neuro-btn-ghost text-sm py-2 px-3 min-h-0 gap-1">
-            <ArrowLeftRight className="w-4 h-4"/>
-            Modes
-          </Link>
+          <button type="button" onClick={signOut} className="neuro-btn-ghost text-sm py-2 px-3 min-h-0 gap-1">
+            <LogOut className="w-4 h-4"/>
+            Sign Out
+          </button>
         </header>
 
         <main className="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full">

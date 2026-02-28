@@ -11,6 +11,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { usePermission } from "@/context/RoleContext";
+import AdminOnlyNotice from "@/components/AdminOnlyNotice";
 
 // ==================== AI HELPER FUNCTIONS ====================
 /**
@@ -278,7 +280,7 @@ const createHistoryEntry = (type, action, data) => {
 };
 
 // ==================== ROUTINE VISUALIZER ====================
-function RoutineVisualizer({ routine = [] }) {
+function RoutineVisualizer({ routine = [], isAdmin = false }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [countdowns, setCountdowns] = useState({});
   const [alerts, setAlerts] = useState([]);
@@ -450,12 +452,16 @@ function RoutineVisualizer({ routine = [] }) {
           </Card>
         )}
 
-        <button
-          onClick={() => handleAddAlert(tasks[currentIndex])}
-          className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition text-sm"
-        >
-          Simulate Schedule Change Alert
-        </button>
+        {isAdmin ? (
+          <button
+            onClick={() => handleAddAlert(tasks[currentIndex])}
+            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 transition text-sm"
+          >
+            Simulate Schedule Change Alert
+          </button>
+        ) : (
+          <AdminOnlyNotice label="Schedule adjustment tools are available in admin mode." />
+        )}
       </div>
     </div>
   );
@@ -693,7 +699,7 @@ function SensoryMonitor({ thresholds = {}, aiEnabled = false }) {
 }
 
 // ==================== SOCIAL STORY BUILDER (AI ENHANCED) ====================
-function SocialStoryBuilder({ aiEnabled = false }) {
+function SocialStoryBuilder({ aiEnabled = false, isAdmin = false }) {
   const [stories, setStories] = useState([
     {
       id: 1,
@@ -876,32 +882,36 @@ function SocialStoryBuilder({ aiEnabled = false }) {
           <CardDescription>Create visual stories for social situations</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              placeholder="Story title (e.g., 'First Day of School')"
-              value={newStoryTitle}
-              onChange={(e) => setNewStoryTitle(e.target.value)}
-            />
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button onClick={handleCreateStory}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Story
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Story Created!</DialogTitle>
-                  <DialogDescription>
-                    Your new story "{newStoryTitle}" is ready. Start adding cards to tell the story step by step.
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          </div>
+          {isAdmin ? (
+            <div className="flex gap-2">
+              <Input
+                placeholder="Story title (e.g., 'First Day of School')"
+                value={newStoryTitle}
+                onChange={(e) => setNewStoryTitle(e.target.value)}
+              />
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button onClick={handleCreateStory}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Story
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Story Created!</DialogTitle>
+                    <DialogDescription>
+                      Your new story "{newStoryTitle}" is ready. Start adding cards to tell the story step by step.
+                    </DialogDescription>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            </div>
+          ) : (
+            <AdminOnlyNotice label="Story creation and editing are available in admin mode." />
+          )}
 
           {/* AI Story Templates */}
-          {aiEnabled && (
+          {aiEnabled && isAdmin && (
             <div className="pt-4 border-t">
               <p className="text-sm font-semibold mb-3">💡 AI Story Templates:</p>
               <div className="grid grid-cols-2 gap-2">
@@ -947,13 +957,15 @@ function SocialStoryBuilder({ aiEnabled = false }) {
               <div className="flex items-center justify-between">
                 <CardTitle>{story.title}</CardTitle>
                 <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setCurrentStory(story.id)}
-                  >
-                    Edit
-                  </Button>
+                  {isAdmin ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setCurrentStory(story.id)}
+                    >
+                      Edit
+                    </Button>
+                  ) : null}
                   <Button
                     size="sm"
                     variant="default"
@@ -962,13 +974,15 @@ function SocialStoryBuilder({ aiEnabled = false }) {
                     <Play className="w-4 h-4 mr-1" />
                     View
                   </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteStory(story.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
+                  {isAdmin ? (
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => handleDeleteStory(story.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  ) : null}
                 </div>
               </div>
               <CardDescription>
@@ -979,7 +993,7 @@ function SocialStoryBuilder({ aiEnabled = false }) {
         ))}
       </div>
 
-      {editingStory && (
+      {editingStory && isAdmin && (
         <Card className="border-2 border-green-500">
           <CardHeader>
             <CardTitle>Editing: {editingStory.title}</CardTitle>
@@ -1388,7 +1402,7 @@ function MeltdownPrevention({ sensoryData = {}, routineData = {}, meltdownPredic
 }
 
 // ==================== SENSORY PROFILE SETTINGS ====================
-function SensoryProfileSettings() {
+function SensoryProfileSettings({ isAdmin = false }) {
   const DEFAULT_THRESHOLDS = {
     soundLevel: 70,
     brightness: 80,
@@ -1520,6 +1534,7 @@ function SensoryProfileSettings() {
                 <Input
                   id="name"
                   value={profile.name}
+                  disabled={!isAdmin}
                   onChange={(e) => handleProfileChange("name", e.target.value)}
                   placeholder="Your name"
                 />
@@ -1531,6 +1546,7 @@ function SensoryProfileSettings() {
                   id="age"
                   type="number"
                   value={profile.age}
+                  disabled={!isAdmin}
                   onChange={(e) =>
                     handleProfileChange("age", parseInt(e.target.value) || 0)
                   }
@@ -1545,6 +1561,7 @@ function SensoryProfileSettings() {
                 <Input
                   id="diagnosis"
                   value={profile.diagnosis}
+                  disabled={!isAdmin}
                   onChange={(e) => handleProfileChange("diagnosis", e.target.value)}
                   placeholder="e.g., ASD Level 2 with anxiety"
                 />
@@ -1555,6 +1572,7 @@ function SensoryProfileSettings() {
                 <textarea
                   id="notes"
                   value={profile.notes}
+                  disabled={!isAdmin}
                   onChange={(e) => handleProfileChange("notes", e.target.value)}
                   placeholder="Any additional information..."
                   className="w-full px-3 py-2 border rounded-md border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900"
@@ -1586,6 +1604,7 @@ function SensoryProfileSettings() {
                 </div>
                 <Slider
                   value={[thresholds.soundLevel]}
+                  disabled={!isAdmin}
                   onValueChange={(val) =>
                     handleThresholdChange("soundLevel", val[0])
                   }
@@ -1622,6 +1641,7 @@ function SensoryProfileSettings() {
                 </div>
                 <Slider
                   value={[thresholds.brightness]}
+                  disabled={!isAdmin}
                   onValueChange={(val) =>
                     handleThresholdChange("brightness", val[0])
                   }
@@ -1657,6 +1677,7 @@ function SensoryProfileSettings() {
                 </div>
                 <Slider
                   value={[thresholds.stimulationTime]}
+                  disabled={!isAdmin}
                   onValueChange={(val) =>
                     handleThresholdChange("stimulationTime", val[0])
                   }
@@ -1692,6 +1713,7 @@ function SensoryProfileSettings() {
                 </div>
                 <Slider
                   value={[thresholds.safeZoneStart]}
+                  disabled={!isAdmin}
                   onValueChange={(val) =>
                     handleThresholdChange("safeZoneStart", val[0])
                   }
@@ -1714,6 +1736,7 @@ function SensoryProfileSettings() {
                 </div>
                 <Slider
                   value={[thresholds.warningZoneStart]}
+                  disabled={!isAdmin}
                   onValueChange={(val) =>
                     handleThresholdChange("warningZoneStart", val[0])
                   }
@@ -1738,7 +1761,7 @@ function SensoryProfileSettings() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button onClick={handleExport} variant="outline" className="w-full">
+              <Button onClick={handleExport} disabled={!isAdmin} variant="outline" className="w-full">
                 📥 Export Settings as JSON
               </Button>
               <div>
@@ -1751,6 +1774,7 @@ function SensoryProfileSettings() {
                   id="import"
                   type="file"
                   accept=".json"
+                  disabled={!isAdmin}
                   onChange={handleImport}
                   style={{ display: "none" }}
                 />
@@ -1765,6 +1789,7 @@ function SensoryProfileSettings() {
             <CardContent>
               <Button
                 onClick={handleReset}
+                disabled={!isAdmin}
                 variant="outline"
                 className="w-full text-orange-600 hover:text-orange-700 border-orange-300"
               >
@@ -1777,7 +1802,7 @@ function SensoryProfileSettings() {
       </Tabs>
 
       <div className="fixed bottom-6 right-6 flex gap-2">
-        {hasChanges && (
+        {isAdmin && hasChanges && (
           <Button
             onClick={handleSave}
             className="bg-green-600 hover:bg-green-700 text-white"
@@ -1787,6 +1812,8 @@ function SensoryProfileSettings() {
           </Button>
         )}
       </div>
+
+      {!isAdmin ? <AdminOnlyNotice label="Settings are read-only in user mode. Switch to admin mode to edit thresholds and profile data." /> : null}
 
       <Card className="bg-gray-50 dark:bg-gray-900 border-gray-300 dark:border-gray-700">
         <CardHeader>
@@ -1830,7 +1857,7 @@ function SensoryProfileSettings() {
  * Panel to toggle AI features on/off
  * Users can enable/disable specific AI capabilities
  */
-function AISettingsPanel({ aiEnabled, setAiEnabled }) {
+function AISettingsPanel({ aiEnabled, setAiEnabled, isAdmin = false }) {
   const toggleFeature = (feature) => {
     setAiEnabled((prev) => ({
       ...prev,
@@ -1892,6 +1919,7 @@ function AISettingsPanel({ aiEnabled, setAiEnabled }) {
             </div>
             <Button
               onClick={() => toggleFeature(feature.key)}
+              disabled={!isAdmin}
               size="sm"
               className={`ml-4 ${
                 aiEnabled[feature.key]
@@ -1903,6 +1931,8 @@ function AISettingsPanel({ aiEnabled, setAiEnabled }) {
             </Button>
           </div>
         ))}
+
+        {!isAdmin ? <AdminOnlyNotice label="AI feature toggles are restricted to admin mode." /> : null}
 
         <Alert className="bg-blue-50 dark:bg-blue-900/20 border-blue-300 mt-4">
           <AlertCircle className="h-4 w-4 text-blue-600" />
@@ -2081,6 +2111,11 @@ function HistoryLog({ historyLog }) {
 
 // ==================== MAIN ASD PAGE ====================
 export default function ASDPage() {
+  const canManageSchedule = usePermission("manage_schedule");
+  const canManageSettings = usePermission("manage_settings");
+  const canManageContent = usePermission("manage_content");
+  const canManageAi = usePermission("manage_ai");
+
   // Core state
   const [thresholds, setThresholds] = useState(() => {
     const saved = localStorage.getItem("sensoryProfile");
@@ -2286,7 +2321,7 @@ export default function ASDPage() {
           </TabsList>
 
           <TabsContent value="routine" className="space-y-4 mt-6">
-            <RoutineVisualizer routine={currentRoutine} />
+            <RoutineVisualizer routine={currentRoutine} isAdmin={canManageSchedule} />
           </TabsContent>
 
           <TabsContent value="sensory" className="space-y-4 mt-6">
@@ -2294,7 +2329,7 @@ export default function ASDPage() {
           </TabsContent>
 
           <TabsContent value="stories" className="space-y-4 mt-6">
-            <SocialStoryBuilder aiEnabled={aiEnabled.storyAssistant} />
+            <SocialStoryBuilder aiEnabled={aiEnabled.storyAssistant} isAdmin={canManageContent} />
           </TabsContent>
 
           <TabsContent value="meltdown" className="space-y-4 mt-6">
@@ -2306,8 +2341,8 @@ export default function ASDPage() {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4 mt-6">
-            <SensoryProfileSettings />
-            <AISettingsPanel aiEnabled={aiEnabled} setAiEnabled={setAiEnabled} />
+            <SensoryProfileSettings isAdmin={canManageSettings} />
+            <AISettingsPanel aiEnabled={aiEnabled} setAiEnabled={setAiEnabled} isAdmin={canManageAi} />
           </TabsContent>
 
           <TabsContent value="history" className="space-y-4 mt-6">

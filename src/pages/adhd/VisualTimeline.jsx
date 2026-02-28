@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { usePermission } from '@/context/RoleContext';
+import AdminOnlyNotice from '@/components/AdminOnlyNotice';
 
 // Helper time utilities
 const timeToMinutes = (t) => {
@@ -35,6 +37,7 @@ const defaultCategories = {
 const todayKey = (d = new Date()) => d.toISOString().slice(0, 10);
 
 const VisualTimeline = () => {
+  const canManageSchedule = usePermission('manage_schedule');
   const [view, setView] = useState('day'); // 'day' | 'week'
   const [density, setDensity] = useState('comfortable'); // 'compact' | 'comfortable'
   const idRef = useRef(100);
@@ -227,7 +230,9 @@ const VisualTimeline = () => {
             <label className="flex items-center gap-1"><input type="checkbox" checked={block.reminders?.enabled} onChange={(e) => updateBlock(todayKey(), block.id, { reminders: { ...(block.reminders || {}), enabled: e.target.checked } })} /> Remind</label>
             <button onClick={() => snoozeBlock(block.id, 10)} className="text-xs text-gray-600">Snooze 10m</button>
             <button onClick={() => skipBlock(block.id)} className="text-xs text-gray-600">Skip</button>
-            <button onClick={() => removeBlock(todayKey(), block.id)} className="text-xs text-red-500">Delete</button>
+            {canManageSchedule ? (
+              <button onClick={() => removeBlock(todayKey(), block.id)} className="text-xs text-red-500">Delete</button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -265,6 +270,10 @@ const VisualTimeline = () => {
   }
 
   function RoutineTemplates() {
+    if (!canManageSchedule) {
+      return <AdminOnlyNotice label="Routine template editing is available in admin mode." />;
+    }
+
     return (
       <div className="flex gap-2">
         {Object.keys(routines).map((name) => (
@@ -334,7 +343,11 @@ const VisualTimeline = () => {
       <header className="flex items-start justify-between gap-4 mb-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold mb-1 flex items-center gap-2">🕐 Visual Timeline</h2>
-          <div className="text-gray-600 text-sm">Make time visible. Toggle a view, add blocks, and use routines to plan fast.</div>
+          <div className="text-gray-600 text-sm">
+            {canManageSchedule
+              ? 'Make time visible. Toggle a view, add blocks, and use routines to plan fast.'
+              : 'Make time visible. Your schedule is view-focused in user mode.'}
+          </div>
         </div>
         <div className="flex flex-col items-end gap-2">
           <div className="flex items-center gap-2">
@@ -367,7 +380,11 @@ const VisualTimeline = () => {
                 <div className="text-sm text-gray-500">Now: {minutesToTime(nowMinutes)}</div>
               </div>
 
-              <AddBlockForm onAdd={addNewBlock} />
+              {canManageSchedule ? (
+                <AddBlockForm onAdd={addNewBlock} />
+              ) : (
+                <AdminOnlyNotice label="Adding or deleting timeline blocks is restricted to admin mode." />
+              )}
 
               <div className="mt-4 space-y-3">
                 {getBlocksForDate(todayKey()).length === 0 && (

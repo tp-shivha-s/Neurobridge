@@ -30,48 +30,51 @@ import AOMILibrary from "./pages/dyspraxia/AOMILibrary";
 import HapticPacer from "./pages/dyspraxia/HapticPacer";
 import ARInstructionCards from "./pages/dyspraxia/ARInstructionCards";
 import SafeRoutePlanner from "./pages/dyspraxia/SafeRoutePlanner";
+import { RoleProvider } from "@/context/RoleContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/asd" element={<ASDPage />} />
-            <Route path="/adhd" element={<ADHDDashboard />} />
-            <Route path="/adhd/timeline" element={<VisualTimeline />} />
-            <Route path="/adhd/breakdown" element={<TaskBreakdown />} />
-            <Route path="/adhd/focus" element={<FocusSessions />} />
-            <Route path="/adhd/sounds" element={<Soundscapes />} />
-            <Route path="/adhd/doubling" element={<BodyDoubling />} />
-            <Route path="/adhd/emotion-coach" element={<EmotionCoach />} />
-            <Route path="/dyslexia" element={<DyslexiaPage />} />
-            <Route path="/dyslexia/reader" element={<ReaderMode />} />
-            <Route path="/dyslexia/word-bank" element={<WordBank />} />
-            <Route path="/dyscalculia" element={<DyscalculiaPage />} />
-            <Route path="/ocd" element={<OCDDashboard />} />
-            <Route path="/ocd/erp-hierarchy" element={<ERPHierarchy />} />
-            <Route path="/ocd/ritual-delayer" element={<RitualDelayer />} />
-            <Route path="/ocd/compulsion-heatmap" element={<CompulsionHeatmap />} />
-            <Route path="/ocd/logic-journal" element={<LogicCheckJournal />} />
-            <Route path="/dyspraxia" element={<DyspraxiaDashboard />} />
-            <Route path="/dyspraxia/aomi-library" element={<AOMILibrary />} />
-            <Route path="/dyspraxia/haptic-pacer" element={<HapticPacer />} />
-            <Route path="/dyspraxia/ar-instructions" element={<ARInstructionCards />} />
-            <Route path="/dyspraxia/safe-route" element={<SafeRoutePlanner />} />
-            <Route path="/apd" element={<APDPage />} />
-            <Route path="/tourettes" element={<TourettesPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <RoleProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/asd" element={<ASDPage />} />
+              <Route path="/adhd" element={<ADHDDashboard />} />
+              <Route path="/adhd/timeline" element={<VisualTimeline />} />
+              <Route path="/adhd/breakdown" element={<TaskBreakdown />} />
+              <Route path="/adhd/focus" element={<FocusSessions />} />
+              <Route path="/adhd/sounds" element={<Soundscapes />} />
+              <Route path="/adhd/doubling" element={<BodyDoubling />} />
+              <Route path="/adhd/emotion-coach" element={<EmotionCoach />} />
+              <Route path="/dyslexia" element={<DyslexiaPage />} />
+              <Route path="/dyslexia/reader" element={<ReaderMode />} />
+              <Route path="/dyslexia/word-bank" element={<WordBank />} />
+              <Route path="/dyscalculia" element={<DyscalculiaPage />} />
+              <Route path="/ocd" element={<OCDDashboard />} />
+              <Route path="/ocd/erp-hierarchy" element={<ERPHierarchy />} />
+              <Route path="/ocd/ritual-delayer" element={<RitualDelayer />} />
+              <Route path="/ocd/compulsion-heatmap" element={<CompulsionHeatmap />} />
+              <Route path="/ocd/logic-journal" element={<LogicCheckJournal />} />
+              <Route path="/dyspraxia" element={<DyspraxiaDashboard />} />
+              <Route path="/dyspraxia/aomi-library" element={<AOMILibrary />} />
+              <Route path="/dyspraxia/haptic-pacer" element={<HapticPacer />} />
+              <Route path="/dyspraxia/ar-instructions" element={<ARInstructionCards />} />
+              <Route path="/dyspraxia/safe-route" element={<SafeRoutePlanner />} />
+              <Route path="/apd" element={<APDPage />} />
+              <Route path="/tourettes" element={<TourettesPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </RoleProvider>
 );
 
 export default App;

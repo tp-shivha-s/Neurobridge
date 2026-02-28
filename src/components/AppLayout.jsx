@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Brain, Zap, BookOpen, Calculator, Shield, Hand, Ear, Sparkles, Home, ArrowLeftRight, User, } from "lucide-react";
+import { useRole } from "@/context/RoleContext";
 const navItems = [
     { title: "Home", path: "/", icon: Home },
     { title: "ASD", path: "/asd", icon: Brain },
@@ -13,6 +14,7 @@ const navItems = [
 ];
 export default function AppLayout({ children }) {
     const location = useLocation();
+  const { role, setRole, isAdmin } = useRole();
     return (<div className="flex min-h-screen w-full">
       {/* Sidebar */}
       <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card p-4 gap-2 sticky top-0 h-screen overflow-y-auto">
@@ -31,7 +33,22 @@ export default function AppLayout({ children }) {
           <div className="flex-1 min-w-0">
             <p className="text-xs text-muted-foreground">ABHA ID</p>
             <p className="text-sm font-semibold truncate">NB-2024-XXXX</p>
+            <p className="text-xs mt-1 text-muted-foreground">
+              Role: <span className="font-semibold text-foreground">{isAdmin ? "Admin" : "User"}</span>
+            </p>
           </div>
+        </div>
+
+        <div className="neuro-card p-3 mb-4">
+          <label className="text-xs text-muted-foreground block mb-2">Access Mode</label>
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full px-2 py-2 rounded-lg border border-border bg-background text-sm"
+          >
+            <option value="user">User View</option>
+            <option value="admin">Admin View</option>
+          </select>
         </div>
 
         <nav className="flex flex-col gap-1 flex-1">
@@ -60,6 +77,9 @@ export default function AppLayout({ children }) {
           <div className="flex items-center gap-2">
             <Brain className="w-6 h-6 text-primary"/>
             <span className="font-bold text-lg">NeuroBridge</span>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground">
+              {isAdmin ? "Admin" : "User"}
+            </span>
           </div>
           <Link to="/" className="neuro-btn-ghost text-sm py-2 px-3 min-h-0 gap-1">
             <ArrowLeftRight className="w-4 h-4"/>
@@ -68,6 +88,11 @@ export default function AppLayout({ children }) {
         </header>
 
         <main className="flex-1 p-4 md:p-8 max-w-6xl mx-auto w-full">
+          <div className={`mb-4 rounded-lg border px-3 py-2 text-sm ${isAdmin ? "bg-emerald-50 border-emerald-200 text-emerald-800" : "bg-slate-50 border-slate-200 text-slate-700"}`}>
+            {isAdmin
+              ? "Admin mode: scheduling, settings, AI controls, and content management are enabled."
+              : "User mode: therapeutic tools remain available while admin configuration controls are hidden or read-only."}
+          </div>
           {children}
         </main>
       </div>

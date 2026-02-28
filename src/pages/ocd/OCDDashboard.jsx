@@ -3,6 +3,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Shield, Waves, Sparkles, ListChecks, NotebookPen, Wind, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import styles from "./OCDDashboard.module.css";
+import { usePermission } from "@/context/RoleContext";
+import AdminOnlyNotice from "@/components/AdminOnlyNotice";
 
 const OCD_SCREENS = [
   { id: "wave", label: "Wave-Rider", icon: Waves },
@@ -39,6 +41,7 @@ const reassureAwareReply = (entry) => {
 };
 
 export default function OCDDashboard() {
+  const canManageContent = usePermission("manage_content");
   const [loading, setLoading] = useState(true);
   const [activeScreen, setActiveScreen] = useState("wave");
 
@@ -346,15 +349,19 @@ export default function OCDDashboard() {
                 ))}
               </div>
 
-              <div className={styles.exposureComposer}>
-                <input
-                  className={styles.textInput}
-                  value={microExposure}
-                  onChange={(event) => setMicroExposure(event.target.value)}
-                  placeholder='Add micro-exposure: "Delay hand washing for 2 minutes"'
-                />
-                <button className={styles.primaryAction} onClick={addExposure}>Add Step</button>
-              </div>
+              {canManageContent ? (
+                <div className={styles.exposureComposer}>
+                  <input
+                    className={styles.textInput}
+                    value={microExposure}
+                    onChange={(event) => setMicroExposure(event.target.value)}
+                    placeholder='Add micro-exposure: "Delay hand washing for 2 minutes"'
+                  />
+                  <button className={styles.primaryAction} onClick={addExposure}>Add Step</button>
+                </div>
+              ) : (
+                <AdminOnlyNotice label="Exposure ladder editing is available in admin mode." />
+              )}
             </motion.section>
           )}
 

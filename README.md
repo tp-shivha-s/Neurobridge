@@ -1,102 +1,78 @@
-# Welcome to your Lovable project
+# 🧠 NeuroBridge
 
-## Project info
+**NeuroBridge** is an accessible health-assistance web application providing support modules tailored for neurodiverse individuals. It currently includes dedicated modules for some conditions such as ASD,Anxiety,OCD,Depression etc.. with a focus on clean, distraction-free UI built with accessibility at its core.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+🔗 **Live Demo:** [neurobridge-one.vercel.app](https://neurobridge-one.vercel.app)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ Features
 
-**Use Lovable**
+- **Accessibility-first design** — Module components use CSS Modules (no Tailwind) for precise, distraction-free styling
+- **Offline-resilient** — Frontend gracefully falls back to `localStorage` if the backend is unavailable
+- **Optional Python backend** — Flask + SQLite backend for persistent data via `/api/*` endpoints
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Tech Stack
 
-**Use your preferred IDE**
+| Layer     | Technology                        |
+|-----------|-----------------------------------|
+| Frontend  | React, Vite, TypeScript           |
+| Styling   | Tailwind CSS, shadcn/ui, CSS Modules (accessibility modules) |
+| Backend   | Python, Flask, SQLite (optional)  |
+| Database  | Supabase (Edge Functions)         |
+| Testing   | Vitest                            |
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Getting Started
 
-Follow these steps:
+### Prerequisites
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- [Node.js & npm](https://github.com/nvm-sh/nvm#installing-and-updating) (via nvm recommended)
+- Python 3.x (only if running the optional backend)
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Frontend Setup
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+# 1. Clone the repository
+git clone https://github.com/tp-shivha-shakthiy/Neurobridge.git
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 2. Navigate into the project
+cd Neurobridge
+
+# 3. Install dependencies
+npm install
+
+# 4. Copy environment variables
+cp .env.example .env
+
+# 5. Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:5173`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Optional Backend Setup (Flask + SQLite)
 
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## OCD + Dyspraxia modules
-
-New accessibility-focused modules were added with CSS Modules (no Tailwind classes used in these new components):
-
-- `src/components/ocd/` for OCDModule features
-- `src/components/Dyspraxia/` for DyspraxiaModule features
-
-These are mounted at:
-
-- `/ocd`
-- `/dyspraxia`
-
-## Optional Python backend (Flask + SQLite)
-
-Frontend components use `/api/*` endpoints and gracefully fall back to `localStorage` if the backend is unavailable.
-
-Run backend locally:
-
-```sh
+```bash
 cd backend
 python -m venv .venv
-# Windows PowerShell
+
+# Activate on Linux/macOS
+source .venv/bin/activate
+
+# Activate on Windows PowerShell
 .\.venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
 python app.py
 ```
 
-The Vite dev server proxies `/api` requests to `http://localhost:5000`.
+The backend runs on `http://localhost:5000`. The Vite dev server automatically proxies `/api` requests to it.
 
-## How can I deploy this project?
+> **Note:** The frontend works without the backend — it will fall back to `localStorage` for data persistence.
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+---
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
